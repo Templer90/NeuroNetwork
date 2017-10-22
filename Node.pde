@@ -3,8 +3,12 @@ class Node{
   public Edge[] outputs;
   
   public float bias;
+  private float x=0;
+  private float y=0;
   
-  public Node(){
+  public Node(float x,float y){
+   this.x=x;
+   this.y=y;
   }
   
   private float activationFunction(float input){
@@ -27,6 +31,6 @@ class Node{
   }
   
   public void draw(){
-    
+     ellipse(x,y,20,20);
   }
 }
