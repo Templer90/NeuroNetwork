@@ -1,36 +1,79 @@
-class Node{
+class Node {
   public Edge[] inputs;
   public Edge[] outputs;
-  
+
   public float bias;
   private float x=0;
   private float y=0;
-  
-  public Node(float x,float y){
-   this.x=x;
-   this.y=y;
+
+  private color col;
+  private float value=0;
+
+
+  public Node(float x, float y, color c) {
+    this.x=x;
+    this.y=y;
+    this.col=c;
   }
-  
-  private float activationFunction(float input){
+
+  public Node(float x, float y) {
+    this.x=x;
+    this.y=y;
+    this.col=color(255);
+  }
+
+  private float activationFunction(float input) {
     return input;
   }
-  
-  public void step(){
+
+  public void step() {
     float sum = bias;
-    for(Edge e: inputs){
-      sum += e.value * e.bias;  
+    for (Edge e : inputs) {
+      sum += e.value * e.bias;
     }
-    
-    float activation=this.activationFunction(sum);
-    
-    for(Edge e: outputs){
-      e.value = activation;  
+
+    this.value=this.activationFunction(sum);
+
+    for (Edge e : outputs) {
+      e.value = value;
     }
-    
-    
   }
-  
-  public void draw(){
-     ellipse(x,y,20,20);
+
+  public void draw() {
+    float size=20;
+    ellipseMode(CENTER);
+    strokeWeight(0);
+    if (this.overCircle(this.x, this.y, size)) {
+
+      for (int i=0; i<this.inputs.length; i++) {
+        if (this.inputs[i]!=null) {
+          this.inputs[i].draw();
+        }
+      }
+      if (this.outputs==null) {
+        fill(this.col, map(this.value, 0, 1, 0, 255));
+      } else {
+        for (int i=0; i<this.outputs.length; i++) {
+          if (this.outputs[i]!=null) {
+            this.outputs[i].draw();
+          }
+        }
+      }
+    } else {
+      fill(255);
+    }
+
+
+    ellipse(this.x, this.y, size, size);
+  }
+
+  boolean overCircle(float x, float y, float diameter) {
+    float disX = x - mouseX;
+    float disY = y - mouseY;
+    if (sqrt(sq(disX) + sq(disY)) < diameter/2 ) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
