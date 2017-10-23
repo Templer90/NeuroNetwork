@@ -34,13 +34,17 @@ class Brain {
         nodes[i].draw();
       }
     }
+
+    public void step() {
+      for (int i=0; i<nodes.length; i++) {
+        nodes[i].step();
+      }
+    }
   }
 
   Layer[] layers;
 
-  Brain(int hiddenLayers, int output ) {
-    float x=20;
-    float y=20;
+  Brain(float x, float y, InputGrid grid, int hiddenLayers, int output ) {
     float offset=50;
     layers = new Layer[hiddenLayers+2];
 
@@ -51,6 +55,9 @@ class Brain {
 
     layers[hiddenLayers+1] = new Layer(output, x+offset*(hiddenLayers+1), y, color(255, 0, 0));
 
+    for (int i=0; i<layers[0].size; i++) {
+      layers[0].getNode(i).inputs=new Edge[1];
+    }
 
     for (int i=1; i < hiddenLayers+2; i++) {
       Layer il=layers[i-1];
@@ -64,12 +71,22 @@ class Brain {
     }
 
     Edge e;
+    //InputLayer
+    for (int i=0; i<layers[0].size; i++) {//Alle Nodes in Layer
+      e=new Edge(input, layers[0].getNode(i));
+      layers[0].getNode(i).inputs[0] = e;
+      grid.addEdge(i, e);
+    }
+
+
+
+    //Alle anderen Layer
     for (int i=1; i < hiddenLayers+2; i++) {
       Layer il=layers[i-1];
       Layer l=layers[i];
       for (int j=0; j<l.size; j++) {//Alle Nodes in Layer
-        for (int k=0; k < il.getNode(j).outputs.length; k++) {//Alle Outputs in Layer davor
-          e=new Edge(il.getNode(k),l.getNode(j));
+        for (int k=0; k < il.size; k++) {//Alle Outputs in Layer davor
+          e=new Edge(il.getNode(k), l.getNode(j));
 
           il.getNode(k).outputs[j] = e;
           l.getNode(j).inputs[k] = e;
@@ -89,7 +106,8 @@ class Brain {
     //pushMatrix();
     //translate(400,0);
 
-    for (int i=1; i<layers.length; i++) {
+    for (int i=0; i<layers.length; i++) {
+      layers[i].step();
       layers[i].draw();
     }
 

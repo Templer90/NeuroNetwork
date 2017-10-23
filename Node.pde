@@ -1,10 +1,8 @@
-class Node {
-  public Edge[] inputs;
-  public Edge[] outputs;
+class Node extends PositionClass {
+  public Edge[] inputs=new Edge[0];
+  public Edge[] outputs=new Edge[0];
 
   public float bias;
-  private float x=0;
-  private float y=0;
 
   private color col;
   private float value=0;
@@ -60,7 +58,7 @@ class Node {
         }
       }
     } else {
-      fill(255);
+      fill(this.value*255);
     }
 
 
