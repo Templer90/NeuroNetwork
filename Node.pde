@@ -4,36 +4,39 @@ class Node extends PositionClass {
 
   public float bias;
 
-  private color col;
-  private float value=0;
+  protected color col;
+  public float value=0.0;
 
 
   public Node(float x, float y, color c) {
     this.x=x;
     this.y=y;
     this.col=c;
+    this.bias=random(10)-5;
   }
 
   public Node(float x, float y) {
     this.x=x;
     this.y=y;
     this.col=color(255);
+    this.bias=random(10)-5;
   }
 
-  private float activationFunction(float input) {
+  protected float activationFunction(float input) {
+    if(input<=0)return 0;
     return input;
   }
 
   public void step() {
     float sum = bias;
     for (Edge e : inputs) {
-      sum += e.value * e.bias;
+      sum += e.getValue();
     }
 
     this.value=this.activationFunction(sum);
 
     for (Edge e : outputs) {
-      e.value = value;
+      e.setValue(this.value);
     }
   }
 
@@ -44,9 +47,7 @@ class Node extends PositionClass {
     if (this.overCircle(this.x, this.y, size)) {
 
       for (int i=0; i<this.inputs.length; i++) {
-        if (this.inputs[i]!=null) {
-          this.inputs[i].draw();
-        }
+        this.inputs[i].draw();
       }
       if (this.outputs==null) {
         fill(this.col, map(this.value, 0, 1, 0, 255));

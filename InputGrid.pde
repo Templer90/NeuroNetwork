@@ -33,11 +33,14 @@ class InputGrid extends PositionClass {
     if (overRect(this.x, this.y, cell*this.size, cell*this.size)&&mousePressed) {
       int xpos=(int)((mouseX-this.x)/cell);
       int ypos=(int)((mouseY-this.y)/cell);
-      
-      this.grid[xpos+ypos*this.size].value+=0.1;
+
+      this.grid[xpos+ypos*this.size].value+=0.5;
     }
 
     popMatrix();
+  }
+
+  public void setPicure(MNIST data) {
   }
 
   public void update() {
