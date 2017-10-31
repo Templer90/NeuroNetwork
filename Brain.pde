@@ -57,46 +57,42 @@ class Brain {
     }
   }
 
-  public void setInput() {
+
+ public void think(float[] expected) {
+    float fit=this.fittness(expected);
+    float outputDelta=1.0-fit;
+    float biasDelat=0;
+
   }
-
-
-  public void think(int[] expected) {
+  
+  
+  public void thinkRandom(float[] expected) {
     float oldfittness=this.fittness(expected);
     float type=random(1);
 
-    float oldbias=0;
-
-    float r=random(10)-5;
-    Edge e=null;
-    Node n=null;
+    IRandomBias element;
 
     if (type>0.5) {
-      e=edge.get((int)random(edge.size()));
-      oldbias=e.bias;
-      e.bias=r;
+      element=edge.get((int)random(edge.size()));
     } else {
       Layer l=layers[(int)random(layers.length)];
-      n=l.getNode((int)random(l.size));
-      oldbias=n.bias;
-      n.bias=r;
+      element=l.getNode((int)random(l.size));
     }
+    
+    float r=random(-5.0,5.0);
+    element.randomize(r);
 
     for (int i=0; i<layers.length; i++) {
       layers[i].step();
     }
 
     float newfittness=this.fittness(expected);
-    if (oldfittness<=newfittness) {
-      if (type>0.5) {
-        e.bias=oldbias;
-      } else {
-        n.bias=oldbias;
-      }
+    if (oldfittness<newfittness) {
+      element.revert();
     }
   }
 
-  public float fittness(int[] expected) {
+  public float fittness(float[] expected) {
     float sum=0;
     float s=0;
     for (int i=0; i<this.output.size; i++) {
@@ -112,7 +108,7 @@ class Brain {
     //translate(400,0);
 
     for (int i=0; i<layers.length; i++) {
-      //layers[i].step();
+      layers[i].step();
       layers[i].draw();
     }
 

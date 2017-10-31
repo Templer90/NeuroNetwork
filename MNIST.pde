@@ -1,6 +1,6 @@
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,10 +14,13 @@ public class MNIST {
     this.label=label;
     this.data=data;
   }
-  
-  public int[] labelArray(){
-    int[] r=new int[10];
-    r[this.label]=1;
+
+  public float[] labelArray() {
+    float[] r=new float[10];
+    for (int i=0; i>r.length; i++) {
+      r[this.label]=0.1;
+    }
+    r[this.label]=0.9;
     return r;
   }
 }
@@ -62,26 +65,31 @@ public class MNISTLoadingService {
     ByteArrayOutputStream labelBuffer = new ByteArrayOutputStream();
     ByteArrayOutputStream imageBuffer = new ByteArrayOutputStream();
 
-    InputStream labelInputStream = this.getClass().getResourceAsStream(labelFileName);
-    InputStream imageInputStream = this.getClass().getResourceAsStream(imageFileName);
-
     int read;
+
+    InputStream labelInputStream =new FileInputStream(labelFileName);
+    InputStream imageInputStream =new FileInputStream(imageFileName);
+
+
     byte[] buffer = new byte[16384];
 
     while ((read = labelInputStream.read(buffer, 0, buffer.length)) != -1) {
       labelBuffer.write(buffer, 0, read);
     }
+    labelInputStream.close();
 
     labelBuffer.flush();
 
     while ((read = imageInputStream.read(buffer, 0, buffer.length)) != -1) {
       imageBuffer.write(buffer, 0, read);
     }
+    imageInputStream.close();
 
     imageBuffer.flush();
 
     byte[] labelBytes = labelBuffer.toByteArray();
     byte[] imageBytes = imageBuffer.toByteArray();
+
 
     byte[] labelMagic = Arrays.copyOfRange(labelBytes, 0, OFFSET_SIZE);
     byte[] imageMagic = Arrays.copyOfRange(imageBytes, 0, OFFSET_SIZE);
@@ -91,28 +99,31 @@ public class MNISTLoadingService {
     }
 
     if (ByteBuffer.wrap(imageMagic).getInt() != IMAGE_MAGIC) {
-      throw new IOException("Bad magic number in image file!");
+      throw new IOException("Bad magic number in image file()");
     }
 
     int numberOfLabels = ByteBuffer.wrap(Arrays.copyOfRange(labelBytes, NUMBER_ITEMS_OFFSET, NUMBER_ITEMS_OFFSET + ITEMS_SIZE)).getInt();
     int numberOfImages = ByteBuffer.wrap(Arrays.copyOfRange(imageBytes, NUMBER_ITEMS_OFFSET, NUMBER_ITEMS_OFFSET + ITEMS_SIZE)).getInt();
 
     if (numberOfImages != numberOfLabels) {
-      throw new IOException("The number of labels and images do not match!");
+      throw new IOException("The number of labels and images do not match!"+numberOfImages +" "+ numberOfLabels);
     }
 
     int numRows = ByteBuffer.wrap(Arrays.copyOfRange(imageBytes, NUMBER_OF_ROWS_OFFSET, NUMBER_OF_ROWS_OFFSET + ROWS_SIZE)).getInt();
     int numCols = ByteBuffer.wrap(Arrays.copyOfRange(imageBytes, NUMBER_OF_COLUMNS_OFFSET, NUMBER_OF_COLUMNS_OFFSET + COLUMNS_SIZE)).getInt();
 
-    if (numRows != ROWS && numRows != COLUMNS) {
-      throw new IOException("Bad image. Rows and columns do not equal " + ROWS + "x" + COLUMNS);
+    if (numRows != ROWS && numCols != COLUMNS) {
+      throw new IOException("Bad image. Rows and columns do not equal " + ROWS + "x" + COLUMNS + " "+numRows+" "+numCols);
     }
 
     for (int i = 0; i < numberOfLabels; i++) {
       int label = labelBytes[OFFSET_SIZE + ITEMS_SIZE + i];
-      byte[] imageData = Arrays.copyOfRange(imageBytes, (i * IMAGE_SIZE) + IMAGE_OFFSET, (i * IMAGE_SIZE) + IMAGE_OFFSET + IMAGE_SIZE);
-
-      images.add(new MNIST(label, imageData));
+      try {
+        byte[] imageData = Arrays.copyOfRange(imageBytes, (i * IMAGE_SIZE) + IMAGE_OFFSET, (i * IMAGE_SIZE) + IMAGE_OFFSET + IMAGE_SIZE);
+        images.add(new MNIST(label, imageData));
+      }
+      catch(Exception e) {
+      }
     }
 
     return images;

@@ -41,6 +41,17 @@ class InputGrid extends PositionClass {
   }
 
   public void setPicure(MNIST data) {
+    int max=Math.max(this.grid.length*4, data.data.length);
+    byte[]buffer=data.data;
+    int n=0;
+    for (int i=0; i<this.grid.length; i++) {
+      //this.grid[i].value=(float)((int)data.data[i]*255);
+      if (n<data.data.length) {
+        //this.grid[i].value=Float.intBitsToFloat( buffer[n] ^ buffer[n+1]<<8 ^ buffer[n+2]<<16 ^ buffer[n+3]<<24);
+        this.grid[i].value=(buffer[i]<0?buffer[i]+255:buffer[i])/255.0;
+      }
+    }
+    //exit();
   }
 
   public void update() {

@@ -4,6 +4,7 @@ class OutputNode extends Node {
   public OutputNode(float x, float y, String label) {
     super( x, y, color(255));
     this.label=label;
+    this.bias=1.0;
   }
 
 

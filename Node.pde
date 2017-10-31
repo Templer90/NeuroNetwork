@@ -1,8 +1,9 @@
-class Node extends PositionClass {
+class Node extends PositionClass implements IRandomBias{
   public Edge[] inputs=new Edge[0];
   public Edge[] outputs=new Edge[0];
 
   public float bias;
+  private float oldbias=0;
 
   protected color col;
   public float value=0.0;
@@ -12,18 +13,18 @@ class Node extends PositionClass {
     this.x=x;
     this.y=y;
     this.col=c;
-    this.bias=random(10)-5;
+    this.bias=1;
   }
 
   public Node(float x, float y) {
     this.x=x;
     this.y=y;
     this.col=color(255);
-    this.bias=random(10)-5;
+    this.bias=1;
   }
 
   protected float activationFunction(float input) {
-    if(input<=0)return 0;
+    if (input<=0)return 0;
     return input;
   }
 
@@ -74,5 +75,14 @@ class Node extends PositionClass {
     } else {
       return false;
     }
+  }
+
+  public void randomize(float amount) {
+    this.oldbias=this.bias;
+    this.bias+=amount;
+  }
+
+  public void revert() {
+    this.bias=this.oldbias;
   }
 }

@@ -1,9 +1,10 @@
-class Edge {
+class Edge implements IRandomBias {
+  private float oldbias=0;
   public PositionClass input;
   public Node output;
 
   public float value=0;
-  public float bias=1;
+  public float bias=1.0;
 
 
   Edge(PositionClass grid, Node out) {
@@ -15,12 +16,12 @@ class Edge {
     this.input=grid;
     this.output=out;
     if (rand) {
-      this.bias=random(10)-5;
+      this.bias=random(-5.0,5.0);
+      this.oldbias=this.bias;
     }
   }
 
   public float getValue() {
-
     return this.value*this.bias;
   }
 
@@ -32,12 +33,21 @@ class Edge {
 
   public void draw() {
     if (this.bias>=0) {
-      stroke(0, 0, 255);
+      stroke(0, 0, 255, this.value);
     } else {
-      stroke(255, 0, 0);
+      stroke(255, 0, 0, this.value);
     }
 
-    strokeWeight(1);
+    strokeWeight(this.bias>=0?this.bias:-this.bias);
     line(input.x, input.y, output.x, output.y);
+  }
+
+  public void randomize(float amount) {
+    this.oldbias=this.bias;
+    this.bias+=amount;
+  }
+
+  public void revert() {
+    this.bias=this.oldbias;
   }
 }
